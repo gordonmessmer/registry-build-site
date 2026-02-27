@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>registry-build - Modern RPM Package Automation</title>
+    <title>registry-build - One Spec, Many Deployments</title>
     <style>
         * {
             margin: 0;
@@ -34,20 +34,27 @@
         .hero {
             background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             color: white;
-            padding: 4rem 2rem;
+            padding: 5rem 2rem;
             text-align: center;
         }
 
         .hero h1 {
-            font-size: 3rem;
+            font-size: 3.5rem;
             font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero .tagline {
+            font-size: 1.75rem;
+            font-weight: 600;
+            opacity: 0.95;
             margin-bottom: 1rem;
         }
 
         .hero p {
             font-size: 1.25rem;
-            opacity: 0.95;
-            max-width: 700px;
+            opacity: 0.9;
+            max-width: 800px;
             margin: 0 auto;
         }
 
@@ -70,11 +77,84 @@
         }
 
         .section-subtitle {
-            font-size: 1.125rem;
+            font-size: 1.25rem;
             color: var(--text-light);
             text-align: center;
-            max-width: 700px;
+            max-width: 800px;
             margin: 0 auto 3rem;
+            line-height: 1.8;
+        }
+
+        .highlight-box {
+            background: var(--surface);
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+            margin: 2rem 0;
+            border-left: 4px solid var(--primary);
+        }
+
+        .highlight-box h3 {
+            font-size: 1.75rem;
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+
+        .highlight-box p {
+            color: var(--text-light);
+            font-size: 1.125rem;
+            line-height: 1.8;
+        }
+
+        .deployment-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .deployment-card {
+            background: var(--surface);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .deployment-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+        }
+
+        .deployment-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .deployment-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: var(--text);
+        }
+
+        .deployment-card p {
+            color: var(--text-light);
+            line-height: 1.7;
+            margin-bottom: 1rem;
+        }
+
+        .deployment-card .spec-note {
+            font-size: 0.9rem;
+            color: var(--primary);
+            font-weight: 600;
+            font-style: italic;
         }
 
         .benefits-grid {
@@ -89,24 +169,6 @@
             padding: 2rem;
             border-radius: 12px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .benefit-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
-        }
-
-        .benefit-icon {
-            width: 48px;
-            height: 48px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
         }
 
         .benefit-card h3 {
@@ -117,44 +179,6 @@
 
         .benefit-card p {
             color: var(--text-light);
-            line-height: 1.7;
-        }
-
-        .tools-grid {
-            display: grid;
-            gap: 2rem;
-            margin-top: 2rem;
-        }
-
-        .tool-card {
-            background: var(--surface);
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
-        }
-
-        .tool-header {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            padding: 1.5rem 2rem;
-        }
-
-        .tool-header h3 {
-            font-size: 1.75rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .tool-header p {
-            opacity: 0.95;
-        }
-
-        .tool-body {
-            padding: 2rem;
-        }
-
-        .tool-body p {
-            color: var(--text-light);
-            margin-bottom: 1rem;
             line-height: 1.7;
         }
 
@@ -221,47 +245,36 @@
             font-family: 'Monaco', 'Courier New', monospace;
         }
 
-        .workflow {
-            background: var(--surface);
-            padding: 2rem;
-            border-radius: 12px;
-            margin-top: 2rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+        .tools-section {
+            background: var(--bg);
+            padding: 3rem 0;
+            margin-top: 4rem;
         }
 
-        .workflow-step {
-            display: flex;
+        .tools-compact {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 1.5rem;
-            margin-bottom: 2rem;
-            align-items: start;
+            margin-top: 2rem;
         }
 
-        .workflow-step:last-child {
-            margin-bottom: 0;
+        .tool-compact {
+            background: var(--surface);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 3px solid var(--primary);
         }
 
-        .step-number {
-            min-width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 1.125rem;
-        }
-
-        .step-content h4 {
+        .tool-compact h4 {
             font-size: 1.25rem;
             margin-bottom: 0.5rem;
             color: var(--text);
         }
 
-        .step-content p {
+        .tool-compact p {
+            font-size: 0.95rem;
             color: var(--text-light);
-            line-height: 1.7;
+            line-height: 1.6;
         }
 
         .cta {
@@ -309,13 +322,18 @@
 
         @media (max-width: 768px) {
             .hero h1 {
-                font-size: 2rem;
+                font-size: 2.5rem;
+            }
+
+            .hero .tagline {
+                font-size: 1.5rem;
             }
 
             .section-title {
                 font-size: 2rem;
             }
 
+            .deployment-grid,
             .benefits-grid {
                 grid-template-columns: 1fr;
             }
@@ -327,60 +345,40 @@
     <div class="hero">
         <div class="container">
             <h1>registry-build</h1>
-            <p>Modern automation for RPM-based build pipelines. Reduce friction, automate maintenance, and deploy with confidence.</p>
+            <div class="tagline">One Spec, Many Deployments</div>
+            <p>RPM spec as a unified build definition for CI/CD pipelines, testing, and deployment across package repositories, software collections, and containers.</p>
         </div>
     </div>
 
-    <!-- Benefits Section -->
+    <!-- Core Concept Section -->
     <div class="section">
         <div class="container">
-            <h2 class="section-title">Why Choose registry-build?</h2>
-            <p class="section-subtitle">Build pipelines based on RPM specs offer a proven path from development to deployment. Our tools remove the manual overhead while preserving the benefits.</p>
+            <h2 class="section-title">A Unified Path from Source to Deployment</h2>
+            <p class="section-subtitle">RPM spec files provide a consistent, proven build definition that works across your entire pipeline. Write your spec once, then build and test in CI, deploy to package repos, create portable collections, or package for containers—all from the same source of truth.</p>
 
-            <div class="benefits-grid">
-                <div class="benefit-card">
-                    <div class="benefit-icon">⚡</div>
-                    <h3>Reduce Maintainer Overhead</h3>
-                    <p>Automated maintenance of dist-git repositories eliminates manual tracking of upstream releases, version bumps, and branch management. Focus on development, not bookkeeping.</p>
-                </div>
-
-                <div class="benefit-card">
-                    <div class="benefit-icon">🔄</div>
-                    <h3>Follow Upstream Releases</h3>
-                    <p>Distributions that track stable release streams provided by upstream projects reduce friction between users and developers, ensuring bug fixes reach production faster.</p>
-                </div>
-
-                <div class="benefit-card">
-                    <div class="benefit-icon">🚀</div>
-                    <h3>Direct Source Builds</h3>
-                    <p>Building directly from source-git repos removes the release process from your deployment pipeline entirely, mimicking the velocity benefits of a monorepo while maintaining package isolation.</p>
-                </div>
+            <div class="highlight-box">
+                <h3>Why RPM Spec?</h3>
+                <p>RPM spec is a mature, standardized format for describing how to build software. It handles dependencies, build steps, installation paths, and package metadata in a declarative way. Unlike fragmented tooling where you define builds differently for each deployment target, RPM spec gives you one definition that adapts to multiple deployment types through build-time configuration.</p>
             </div>
         </div>
     </div>
 
-    <!-- Tools Section -->
+    <!-- Deployment Types Section -->
     <div class="section" style="background: white;">
         <div class="container">
-            <h2 class="section-title">Three Tools, One Ecosystem</h2>
-            <p class="section-subtitle">Each tool handles a specific part of the build pipeline, working together to automate the journey from source to deployment.</p>
+            <h2 class="section-title">Same Spec, Multiple Deployment Targets</h2>
+            <p class="section-subtitle">The power of RPM spec lies in its flexibility. Configure your deployment type at build time, and the same spec adapts to produce the right output.</p>
 
-            <div class="tools-grid">
-                <!-- dist-git-manager -->
-                <div class="tool-card">
-                    <div class="tool-header">
-                        <h3>dist-git-manager</h3>
-                        <p>Automated Dist-Git Repository Maintenance</p>
-                    </div>
-                    <div class="tool-body">
-                        <p>Monitors upstream releases and automatically maintains RPM spec files, patches, and supplementary build files. Manages SemVer-based release branches, detects new upstream versions, and keeps your dist-git repositories synchronized with upstream projects.</p>
-
-                        <div class="collapsible">
-                            <div class="collapsible-header">See Example: Distribution Build</div>
-                            <div class="collapsible-content">
-                                <div class="collapsible-inner">
-                                    <p style="margin-bottom: 1rem; color: var(--text-light);">Building packages from auto-maintained dist-git repositories:</p>
-                                    <pre><code># build-assist.yaml
+            <div class="deployment-grid">
+                <div class="deployment-card">
+                    <div class="deployment-icon">📦</div>
+                    <h3>Package Repositories</h3>
+                    <p>Traditional YUM/DNF repositories for distribution-wide deployment. Perfect for system packages and infrastructure components.</p>
+                    <div class="collapsible">
+                        <div class="collapsible-header">See Configuration</div>
+                        <div class="collapsible-content">
+                            <div class="collapsible-inner">
+                                <pre><code># build-assist.yaml
 base: fedora-39-x86_64
 
 build:
@@ -390,64 +388,23 @@ build:
       - nginx:f39
       - postgresql:f39
       - redis:f39
-      - nodejs:rawhide
 
-# Creates a package repository for traditional deployment</code></pre>
-                                </div>
+# Creates standard RPM repository</code></pre>
                             </div>
                         </div>
                     </div>
+                    <p class="spec-note">→ Same spec, standard install paths</p>
                 </div>
 
-                <!-- source-git-manager -->
-                <div class="tool-card">
-                    <div class="tool-header">
-                        <h3>source-git-manager</h3>
-                        <p>Source-Git Repository Mirroring</p>
-                    </div>
-                    <div class="tool-body">
-                        <p>Maintains full mirrors of upstream git repositories and manages release branches containing RPM specs. Tracks upstream branches and automatically merges changes, enabling builds directly from source without a separate release process.</p>
-
-                        <div class="collapsible">
-                            <div class="collapsible-header">See Example: Development Build</div>
-                            <div class="collapsible-content">
-                                <div class="collapsible-inner">
-                                    <p style="margin-bottom: 1rem; color: var(--text-light);">Building directly from source repositories - no release process needed:</p>
-                                    <pre><code># build-assist.yaml
-base: fedora-39-x86_64
-
-build:
-  - type: git
-    url: https://github.com/myorg/
-    packages:
-      - webapp:main
-      - webapp-api:main
-      - webapp-auth:main
-      - webapp-utils:main
-
-# Builds from current development state
-# Perfect for rapid iteration and testing</code></pre>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- rpm-build-assist -->
-                <div class="tool-card">
-                    <div class="tool-header">
-                        <h3>rpm-build-assist</h3>
-                        <p>RPM Package Building</p>
-                    </div>
-                    <div class="tool-body">
-                        <p>Builds RPM packages from either dist-git or source-git repositories. Supports multiple deployment methods including traditional package repositories and portable software collections with rpath, enabling cross-distribution compatibility.</p>
-
-                        <div class="collapsible">
-                            <div class="collapsible-header">See Example: Portable Software Collection</div>
-                            <div class="collapsible-content">
-                                <div class="collapsible-inner">
-                                    <p style="margin-bottom: 1rem; color: var(--text-light);">Creating a portable software collection with rpath for cross-distribution compatibility:</p>
-                                    <pre><code># build-assist.yaml
+                <div class="deployment-card">
+                    <div class="deployment-icon">📚</div>
+                    <h3>Software Collections</h3>
+                    <p>Portable, self-contained application bundles with rpath. Deploy across distributions with compatible libc without package manager integration.</p>
+                    <div class="collapsible">
+                        <div class="collapsible-header">See Configuration</div>
+                        <div class="collapsible-content">
+                            <div class="collapsible-inner">
+                                <pre><code># build-assist.yaml
 base: fedora-39-x86_64
 
 build:
@@ -456,7 +413,6 @@ build:
     packages:
       - python312:main
       - python312-pip:main
-      - python312-requests:main
       - python312-flask:main
 
 install:
@@ -465,57 +421,194 @@ install:
   packages:
     - python312
     - python312-pip
-    - python312-requests
     - python312-flask
 
-# Installs to /opt/python312 with rpath
-# Works across distributions with compatible libc</code></pre>
-                                </div>
+# Installs to /opt/python312 with rpath</code></pre>
                             </div>
                         </div>
                     </div>
+                    <p class="spec-note">→ Same spec, /opt prefix + rpath</p>
+                </div>
+
+                <div class="deployment-card">
+                    <div class="deployment-icon">📱</div>
+                    <h3>Flatpak Applications</h3>
+                    <p>Sandboxed desktop applications with automatic dependency bundling and runtime isolation.</p>
+                    <div class="collapsible">
+                        <div class="collapsible-header">See Configuration</div>
+                        <div class="collapsible-content">
+                            <div class="collapsible-inner">
+                                <pre><code># build-assist.yaml
+base: fedora-39-x86_64
+
+build:
+  - type: git
+    url: https://github.com/myorg/
+    packages:
+      - myapp:main
+      - myapp-plugins:main
+
+install:
+  type: flatpak
+  packages:
+    - myapp
+    - myapp-plugins
+
+# Installs to /app prefix</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="spec-note">→ Same spec, /app prefix</p>
+                </div>
+
+                <div class="deployment-card">
+                    <div class="deployment-icon">🐳</div>
+                    <h3>Container Images</h3>
+                    <p>Build container-ready packages with proper metadata and dependency chains for optimal layer caching.</p>
+                    <div class="collapsible">
+                        <div class="collapsible-header">See Configuration</div>
+                        <div class="collapsible-content">
+                            <div class="collapsible-inner">
+                                <pre><code># build-assist.yaml
+base: fedora-39-x86_64
+
+build:
+  - type: dist-git
+    url: https://src.fedoraproject.org/rpms/
+    packages:
+      - nginx:f39
+      - webapp:main
+
+install:
+  type: container
+  packages:
+    - nginx
+    - webapp
+
+# Optimized for container layers</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="spec-note">→ Same spec, container-optimized</p>
+                </div>
+
+                <div class="deployment-card">
+                    <div class="deployment-icon">⚡</div>
+                    <h3>CI/CD Testing</h3>
+                    <p>Use the same build definition in your continuous integration pipeline to ensure what you test is what you deploy.</p>
+                    <div class="collapsible">
+                        <div class="collapsible-header">See Configuration</div>
+                        <div class="collapsible-content">
+                            <div class="collapsible-inner">
+                                <pre><code># build-assist.yaml - CI mode
+base: fedora-39-x86_64
+
+build:
+  - type: git
+    url: https://github.com/myorg/
+    packages:
+      - webapp:${GIT_BRANCH}
+      - webapp-tests:${GIT_BRANCH}
+
+# Build from current branch
+# Run tests with same build process
+# No "works on my machine" issues</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="spec-note">→ Same spec, current branch</p>
+                </div>
+
+                <div class="deployment-card">
+                    <div class="deployment-icon">🚀</div>
+                    <h3>Development Builds</h3>
+                    <p>Build directly from source repositories without a release process. Perfect for rapid iteration and testing upstream changes.</p>
+                    <div class="collapsible">
+                        <div class="collapsible-header">See Configuration</div>
+                        <div class="collapsible-content">
+                            <div class="collapsible-inner">
+                                <pre><code># build-assist.yaml
+base: fedora-39-x86_64
+
+build:
+  - type: git
+    url: https://github.com/myorg/
+    packages:
+      - webapp:main
+      - webapp-api:main
+
+# Builds from HEAD
+# No tags or releases needed
+# Deploy bug fixes immediately</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="spec-note">→ Same spec, no release process</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Workflow Section -->
+    <!-- Benefits Section -->
     <div class="section">
         <div class="container">
-            <h2 class="section-title">How It Works</h2>
-            <p class="section-subtitle">A streamlined workflow that connects developers to users</p>
+            <h2 class="section-title">Benefits of a Unified Build Definition</h2>
+            <p class="section-subtitle">When your entire pipeline uses the same build definition, friction disappears.</p>
 
-            <div class="workflow">
-                <div class="workflow-step">
-                    <div class="step-number">1</div>
-                    <div class="step-content">
-                        <h4>Upstream Release Detection</h4>
-                        <p>Tools automatically monitor upstream projects for new releases using services like Anitya, ensuring you never miss an update.</p>
-                    </div>
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <h3>Consistency Across Environments</h3>
+                    <p>Development, testing, staging, and production all use the same RPM spec. No more "it works in dev but fails in prod" because builds differ.</p>
                 </div>
 
-                <div class="workflow-step">
-                    <div class="step-number">2</div>
-                    <div class="step-content">
-                        <h4>Automated Repository Maintenance</h4>
-                        <p>dist-git-manager or source-git-manager updates specs, manages branches, and synchronizes changes without manual intervention.</p>
-                    </div>
+                <div class="benefit-card">
+                    <h3>Reduced Friction</h3>
+                    <p>Following stable upstream releases directly reduces friction between developers and users. Bug fixes flow to production without manual repackaging.</p>
                 </div>
 
-                <div class="workflow-step">
-                    <div class="step-number">3</div>
-                    <div class="step-content">
-                        <h4>Package Building</h4>
-                        <p>rpm-build-assist builds packages from your managed repositories, creating deployable artifacts with your chosen distribution method.</p>
-                    </div>
+                <div class="benefit-card">
+                    <h3>Lower Maintenance Overhead</h3>
+                    <p>Automated tracking of upstream releases means maintainers focus on code, not on manually updating package definitions across multiple systems.</p>
                 </div>
 
-                <div class="workflow-step">
-                    <div class="step-number">4</div>
-                    <div class="step-content">
-                        <h4>Deployment to Users</h4>
-                        <p>Deploy via package repositories or portable software collections. Users get bug fixes and features faster, with less overhead for maintainers.</p>
-                    </div>
+                <div class="benefit-card">
+                    <h3>Deployment Flexibility</h3>
+                    <p>Choose your deployment method based on user needs, not build system constraints. Switch between repos, collections, and containers without rewriting specs.</p>
+                </div>
+
+                <div class="benefit-card">
+                    <h3>Proven Technology</h3>
+                    <p>RPM has powered enterprise Linux distributions for decades. It's mature, well-documented, and supported by extensive tooling.</p>
+                </div>
+
+                <div class="benefit-card">
+                    <h3>Monorepo-Like Velocity</h3>
+                    <p>Building from source-git repos removes release processes from deployment pipelines, giving you monorepo benefits while maintaining package boundaries.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Supporting Tools Section -->
+    <div class="tools-section">
+        <div class="container">
+            <h2 class="section-title">Supporting Automation</h2>
+            <p class="section-subtitle">registry-build provides tools to automate the maintenance and building of RPM-spec-based pipelines.</p>
+
+            <div class="tools-compact">
+                <div class="tool-compact">
+                    <h4>dist-git-manager</h4>
+                    <p>Automates dist-git repository maintenance: monitors upstream releases, updates specs, manages SemVer release branches.</p>
+                </div>
+
+                <div class="tool-compact">
+                    <h4>source-git-manager</h4>
+                    <p>Mirrors upstream repositories and manages release branches with RPM specs for building directly from source.</p>
+                </div>
+
+                <div class="tool-compact">
+                    <h4>rpm-build-assist</h4>
+                    <p>Builds RPM packages from dist-git or source-git with support for multiple deployment types via build-time configuration.</p>
                 </div>
             </div>
         </div>
@@ -524,8 +617,8 @@ install:
     <!-- CTA Section -->
     <div class="cta">
         <div class="container">
-            <h2>Ready to Automate Your Build Pipeline?</h2>
-            <p>Get started with registry-build and reduce the friction between development and deployment.</p>
+            <h2>Ready for a Unified Build Pipeline?</h2>
+            <p>Use RPM spec as your single source of truth from CI to deployment.</p>
             <a href="https://github.com/gmessmer/registry-build" class="cta-button">View on GitHub</a>
         </div>
     </div>
@@ -533,7 +626,7 @@ install:
     <!-- Footer -->
     <footer>
         <div class="container">
-            <p>registry-build - Modern RPM Package Automation</p>
+            <p>registry-build - One Spec, Many Deployments</p>
         </div>
     </footer>
 
