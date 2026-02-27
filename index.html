@@ -376,18 +376,23 @@
                         <p>Monitors upstream releases and automatically maintains RPM spec files, patches, and supplementary build files. Manages SemVer-based release branches, detects new upstream versions, and keeps your dist-git repositories synchronized with upstream projects.</p>
 
                         <div class="collapsible">
-                            <div class="collapsible-header">See Example Usage</div>
+                            <div class="collapsible-header">See Example: Distribution Build</div>
                             <div class="collapsible-content">
                                 <div class="collapsible-inner">
-                                    <pre><code># Monitor and update dist-git repos
-cd dist-git-manager
-./dist-git-manager -c config.yaml --dry-run -v
+                                    <p style="margin-bottom: 1rem; color: var(--text-light);">Building packages from auto-maintained dist-git repositories:</p>
+                                    <pre><code># build-assist.yaml
+base: fedora-39-x86_64
 
-# Automatically handles:
-# - New upstream release detection
-# - Spec file version updates
-# - SemVer release branch creation
-# - Branch synchronization</code></pre>
+build:
+  - type: dist-git
+    url: https://src.fedoraproject.org/rpms/
+    packages:
+      - nginx:f39
+      - postgresql:f39
+      - redis:f39
+      - nodejs:rawhide
+
+# Creates a package repository for traditional deployment</code></pre>
                                 </div>
                             </div>
                         </div>
@@ -404,18 +409,24 @@ cd dist-git-manager
                         <p>Maintains full mirrors of upstream git repositories and manages release branches containing RPM specs. Tracks upstream branches and automatically merges changes, enabling builds directly from source without a separate release process.</p>
 
                         <div class="collapsible">
-                            <div class="collapsible-header">See Example Usage</div>
+                            <div class="collapsible-header">See Example: Development Build</div>
                             <div class="collapsible-content">
                                 <div class="collapsible-inner">
-                                    <pre><code># Mirror upstream and manage releases
-cd source-git-manager
-./source-git-manager -c config.yaml --dry-run -v
+                                    <p style="margin-bottom: 1rem; color: var(--text-light);">Building directly from source repositories - no release process needed:</p>
+                                    <pre><code># build-assist.yaml
+base: fedora-39-x86_64
 
-# Automatically handles:
-# - Full upstream repository mirroring
-# - Release branch maintenance
-# - RPM spec integration
-# - Branch tracking and merging</code></pre>
+build:
+  - type: git
+    url: https://github.com/myorg/
+    packages:
+      - webapp:main
+      - webapp-api:main
+      - webapp-auth:main
+      - webapp-utils:main
+
+# Builds from current development state
+# Perfect for rapid iteration and testing</code></pre>
                                 </div>
                             </div>
                         </div>
@@ -432,17 +443,33 @@ cd source-git-manager
                         <p>Builds RPM packages from either dist-git or source-git repositories. Supports multiple deployment methods including traditional package repositories and portable software collections with rpath, enabling cross-distribution compatibility.</p>
 
                         <div class="collapsible">
-                            <div class="collapsible-header">See Example Usage</div>
+                            <div class="collapsible-header">See Example: Portable Software Collection</div>
                             <div class="collapsible-content">
                                 <div class="collapsible-inner">
-                                    <pre><code># Build RPMs from managed repos
-cd rpm-build-assist
-./rpm-build-assist -c build-assist.yaml -v
+                                    <p style="margin-bottom: 1rem; color: var(--text-light);">Creating a portable software collection with rpath for cross-distribution compatibility:</p>
+                                    <pre><code># build-assist.yaml
+base: fedora-39-x86_64
 
-# Deployment options:
-# - Online package repositories
-# - Software collections (portable)
-# - Cross-distro compatible builds</code></pre>
+build:
+  - type: git
+    url: https://github.com/myorg/
+    packages:
+      - python312:main
+      - python312-pip:main
+      - python312-requests:main
+      - python312-flask:main
+
+install:
+  type: software-collection
+  collection: python312
+  packages:
+    - python312
+    - python312-pip
+    - python312-requests
+    - python312-flask
+
+# Installs to /opt/python312 with rpath
+# Works across distributions with compatible libc</code></pre>
                                 </div>
                             </div>
                         </div>
