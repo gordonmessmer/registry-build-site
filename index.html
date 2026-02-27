@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>registry-build - Modern RPM Package Automation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --secondary: #0ea5e9;
+            --accent: #06b6d4;
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text);
+            background: var(--bg);
+        }
+
+        .hero {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 4rem 2rem;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            opacity: 0.95;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .section {
+            padding: 4rem 0;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-align: center;
+            color: var(--text);
+        }
+
+        .section-subtitle {
+            font-size: 1.125rem;
+            color: var(--text-light);
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto 3rem;
+        }
+
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .benefit-card {
+            background: var(--surface);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .benefit-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+        }
+
+        .benefit-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .benefit-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: var(--text);
+        }
+
+        .benefit-card p {
+            color: var(--text-light);
+            line-height: 1.7;
+        }
+
+        .tools-grid {
+            display: grid;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .tool-card {
+            background: var(--surface);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+        }
+
+        .tool-header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 1.5rem 2rem;
+        }
+
+        .tool-header h3 {
+            font-size: 1.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .tool-header p {
+            opacity: 0.95;
+        }
+
+        .tool-body {
+            padding: 2rem;
+        }
+
+        .tool-body p {
+            color: var(--text-light);
+            margin-bottom: 1rem;
+            line-height: 1.7;
+        }
+
+        .collapsible {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-top: 1.5rem;
+            overflow: hidden;
+        }
+
+        .collapsible-header {
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+            transition: background 0.2s;
+        }
+
+        .collapsible-header:hover {
+            background: rgba(37, 99, 235, 0.05);
+        }
+
+        .collapsible-header::after {
+            content: '▼';
+            font-size: 0.875rem;
+            transition: transform 0.2s;
+        }
+
+        .collapsible-header.active::after {
+            transform: rotate(-180deg);
+        }
+
+        .collapsible-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .collapsible-content.active {
+            max-height: 1000px;
+        }
+
+        .collapsible-inner {
+            padding: 1.5rem;
+            border-top: 1px solid var(--border);
+        }
+
+        pre {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 0.875rem;
+            line-height: 1.6;
+        }
+
+        code {
+            font-family: 'Monaco', 'Courier New', monospace;
+        }
+
+        .workflow {
+            background: var(--surface);
+            padding: 2rem;
+            border-radius: 12px;
+            margin-top: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+        }
+
+        .workflow-step {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            align-items: start;
+        }
+
+        .workflow-step:last-child {
+            margin-bottom: 0;
+        }
+
+        .step-number {
+            min-width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.125rem;
+        }
+
+        .step-content h4 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+
+        .step-content p {
+            color: var(--text-light);
+            line-height: 1.7;
+        }
+
+        .cta {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            color: white;
+            padding: 4rem 2rem;
+            text-align: center;
+            margin-top: 4rem;
+        }
+
+        .cta h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .cta p {
+            font-size: 1.25rem;
+            opacity: 0.95;
+            margin-bottom: 2rem;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: white;
+            color: var(--primary);
+            padding: 1rem 2.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.125rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        footer {
+            background: var(--text);
+            color: rgba(255, 255, 255, 0.8);
+            padding: 2rem;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .benefits-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <div class="hero">
+        <div class="container">
+            <h1>registry-build</h1>
+            <p>Modern automation for RPM-based build pipelines. Reduce friction, automate maintenance, and deploy with confidence.</p>
+        </div>
+    </div>
+
+    <!-- Benefits Section -->
+    <div class="section">
+        <div class="container">
+            <h2 class="section-title">Why Choose registry-build?</h2>
+            <p class="section-subtitle">Build pipelines based on RPM specs offer a proven path from development to deployment. Our tools remove the manual overhead while preserving the benefits.</p>
+
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <div class="benefit-icon">⚡</div>
+                    <h3>Reduce Maintainer Overhead</h3>
+                    <p>Automated maintenance of dist-git repositories eliminates manual tracking of upstream releases, version bumps, and branch management. Focus on development, not bookkeeping.</p>
+                </div>
+
+                <div class="benefit-card">
+                    <div class="benefit-icon">🔄</div>
+                    <h3>Follow Upstream Releases</h3>
+                    <p>Distributions that track stable release streams provided by upstream projects reduce friction between users and developers, ensuring bug fixes reach production faster.</p>
+                </div>
+
+                <div class="benefit-card">
+                    <div class="benefit-icon">🚀</div>
+                    <h3>Direct Source Builds</h3>
+                    <p>Building directly from source-git repos removes the release process from your deployment pipeline entirely, mimicking the velocity benefits of a monorepo while maintaining package isolation.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tools Section -->
+    <div class="section" style="background: white;">
+        <div class="container">
+            <h2 class="section-title">Three Tools, One Ecosystem</h2>
+            <p class="section-subtitle">Each tool handles a specific part of the build pipeline, working together to automate the journey from source to deployment.</p>
+
+            <div class="tools-grid">
+                <!-- dist-git-manager -->
+                <div class="tool-card">
+                    <div class="tool-header">
+                        <h3>dist-git-manager</h3>
+                        <p>Automated Dist-Git Repository Maintenance</p>
+                    </div>
+                    <div class="tool-body">
+                        <p>Monitors upstream releases and automatically maintains RPM spec files, patches, and supplementary build files. Manages SemVer-based release branches, detects new upstream versions, and keeps your dist-git repositories synchronized with upstream projects.</p>
+
+                        <div class="collapsible">
+                            <div class="collapsible-header">See Example Usage</div>
+                            <div class="collapsible-content">
+                                <div class="collapsible-inner">
+                                    <pre><code># Monitor and update dist-git repos
+cd dist-git-manager
+./dist-git-manager -c config.yaml --dry-run -v
+
+# Automatically handles:
+# - New upstream release detection
+# - Spec file version updates
+# - SemVer release branch creation
+# - Branch synchronization</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- source-git-manager -->
+                <div class="tool-card">
+                    <div class="tool-header">
+                        <h3>source-git-manager</h3>
+                        <p>Source-Git Repository Mirroring</p>
+                    </div>
+                    <div class="tool-body">
+                        <p>Maintains full mirrors of upstream git repositories and manages release branches containing RPM specs. Tracks upstream branches and automatically merges changes, enabling builds directly from source without a separate release process.</p>
+
+                        <div class="collapsible">
+                            <div class="collapsible-header">See Example Usage</div>
+                            <div class="collapsible-content">
+                                <div class="collapsible-inner">
+                                    <pre><code># Mirror upstream and manage releases
+cd source-git-manager
+./source-git-manager -c config.yaml --dry-run -v
+
+# Automatically handles:
+# - Full upstream repository mirroring
+# - Release branch maintenance
+# - RPM spec integration
+# - Branch tracking and merging</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- rpm-build-assist -->
+                <div class="tool-card">
+                    <div class="tool-header">
+                        <h3>rpm-build-assist</h3>
+                        <p>RPM Package Building</p>
+                    </div>
+                    <div class="tool-body">
+                        <p>Builds RPM packages from either dist-git or source-git repositories. Supports multiple deployment methods including traditional package repositories and portable software collections with rpath, enabling cross-distribution compatibility.</p>
+
+                        <div class="collapsible">
+                            <div class="collapsible-header">See Example Usage</div>
+                            <div class="collapsible-content">
+                                <div class="collapsible-inner">
+                                    <pre><code># Build RPMs from managed repos
+cd rpm-build-assist
+./rpm-build-assist -c build-assist.yaml -v
+
+# Deployment options:
+# - Online package repositories
+# - Software collections (portable)
+# - Cross-distro compatible builds</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Workflow Section -->
+    <div class="section">
+        <div class="container">
+            <h2 class="section-title">How It Works</h2>
+            <p class="section-subtitle">A streamlined workflow that connects developers to users</p>
+
+            <div class="workflow">
+                <div class="workflow-step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h4>Upstream Release Detection</h4>
+                        <p>Tools automatically monitor upstream projects for new releases using services like Anitya, ensuring you never miss an update.</p>
+                    </div>
+                </div>
+
+                <div class="workflow-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h4>Automated Repository Maintenance</h4>
+                        <p>dist-git-manager or source-git-manager updates specs, manages branches, and synchronizes changes without manual intervention.</p>
+                    </div>
+                </div>
+
+                <div class="workflow-step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h4>Package Building</h4>
+                        <p>rpm-build-assist builds packages from your managed repositories, creating deployable artifacts with your chosen distribution method.</p>
+                    </div>
+                </div>
+
+                <div class="workflow-step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h4>Deployment to Users</h4>
+                        <p>Deploy via package repositories or portable software collections. Users get bug fixes and features faster, with less overhead for maintainers.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA Section -->
+    <div class="cta">
+        <div class="container">
+            <h2>Ready to Automate Your Build Pipeline?</h2>
+            <p>Get started with registry-build and reduce the friction between development and deployment.</p>
+            <a href="https://github.com/gmessmer/registry-build" class="cta-button">View on GitHub</a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>registry-build - Modern RPM Package Automation</p>
+        </div>
+    </footer>
+
+    <script>
+        // Collapsible sections
+        document.querySelectorAll('.collapsible-header').forEach(header => {
+            header.addEventListener('click', function() {
+                this.classList.toggle('active');
+                const content = this.nextElementSibling;
+                content.classList.toggle('active');
+            });
+        });
+    </script>
+</body>
+</html>
