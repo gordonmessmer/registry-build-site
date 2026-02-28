@@ -457,8 +457,8 @@ build:
   - type: dist-git
     url: https://src.fedoraproject.org/rpms/
     packages:
-      - openssl:f43
-      - httpd:f43
+      - openssl:release-3.4
+      - httpd:release-2.4
 
 install:
   type: container
@@ -571,9 +571,9 @@ build:
   - type: dist-git
     url: https://src.fedoraproject.org/rpms/
     packages:
-      - openssl:f43
-      - httpd:f43
-      - php:f43          # ← Only change needed
+      - openssl:release-3.4
+      - httpd:release-2.4
+      - php:release-8.3          # ← Only change needed
 
 install:
   type: container
