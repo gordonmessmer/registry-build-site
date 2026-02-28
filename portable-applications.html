@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Building Portable Applications - registry-build</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --secondary: #0ea5e9;
+            --accent: #06b6d4;
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --warning: #f59e0b;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text);
+            background: var(--bg);
+        }
+
+        .hero {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 4rem 2rem;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            opacity: 0.9;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .nav-link {
+            display: inline-block;
+            color: white;
+            text-decoration: none;
+            margin-top: 1.5rem;
+            padding: 0.75rem 1.5rem;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .section {
+            padding: 4rem 0;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-align: center;
+            color: var(--text);
+        }
+
+        .section-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-light);
+            text-align: center;
+            max-width: 900px;
+            margin: 0 auto 3rem;
+            line-height: 1.8;
+        }
+
+        .highlight-box {
+            background: var(--surface);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+            margin: 2rem 0;
+        }
+
+        .highlight-box.info {
+            border-left: 4px solid var(--primary);
+        }
+
+        .highlight-box.success {
+            border-left: 4px solid var(--success);
+        }
+
+        .highlight-box.warning {
+            border-left: 4px solid var(--warning);
+        }
+
+        .highlight-box h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+
+        .highlight-box p {
+            color: var(--text-light);
+            font-size: 1.125rem;
+            line-height: 1.8;
+            margin-bottom: 0.75rem;
+        }
+
+        .highlight-box ul {
+            margin-left: 1.5rem;
+            color: var(--text-light);
+            font-size: 1.125rem;
+            line-height: 1.8;
+        }
+
+        .highlight-box li {
+            margin-bottom: 0.5rem;
+        }
+
+        pre {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            margin: 1rem 0;
+        }
+
+        code {
+            font-family: 'Monaco', 'Courier New', monospace;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .column-box {
+            background: var(--surface);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+        }
+
+        .column-box h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+
+        .column-box p {
+            color: var(--text-light);
+            line-height: 1.7;
+            margin-bottom: 1rem;
+        }
+
+        .column-box ul {
+            margin-left: 1.5rem;
+            color: var(--text-light);
+            line-height: 1.7;
+        }
+
+        .column-box li {
+            margin-bottom: 0.5rem;
+        }
+
+        .benefit-list {
+            list-style: none;
+            margin: 1.5rem 0;
+            padding: 0;
+        }
+
+        .benefit-list li {
+            padding: 1rem;
+            background: var(--bg);
+            margin-bottom: 0.75rem;
+            border-radius: 6px;
+            border-left: 3px solid var(--success);
+        }
+
+        .benefit-list li strong {
+            color: var(--text);
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .example-box {
+            background: #f0f9ff;
+            border: 2px solid #0ea5e9;
+            padding: 2rem;
+            border-radius: 12px;
+            margin: 2rem 0;
+        }
+
+        .example-box h3 {
+            color: var(--primary);
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .example-box p {
+            color: var(--text);
+            margin-bottom: 0.75rem;
+            line-height: 1.7;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin: 0.25rem;
+        }
+
+        .badge-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-info {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        footer {
+            background: var(--text);
+            color: rgba(255, 255, 255, 0.8);
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .footer-link {
+            color: var(--secondary);
+            text-decoration: none;
+        }
+
+        .footer-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 0 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <div class="hero">
+        <div class="container">
+            <h1>Building Portable Applications</h1>
+            <p>Use RPM package collections to build self-contained, portable application bundles that run across different Linux distributions without depending on system libraries.</p>
+            <a href="index.html" class="nav-link">← Back to Main Page</a>
+        </div>
+    </div>
+
+    <!-- Introduction Section -->
+    <div class="section">
+        <div class="container">
+            <h2 class="section-title">The Portable Application Challenge</h2>
+            <p class="section-subtitle">Modern applications often need to run across multiple Linux distributions, each with different versions of system libraries. Package collections provide a solution by bundling variable dependencies with your application.</p>
+
+            <div class="highlight-box info">
+                <h3>What is a Portable Application?</h3>
+                <p>A portable application is one that can run on multiple Linux distributions without modification. It achieves this by:</p>
+                <ul>
+                    <li>Bundling dependencies that vary between distributions (e.g., specific Python versions, custom libraries)</li>
+                    <li>Using rpath to ensure the application finds its bundled libraries at runtime</li>
+                    <li>Relying only on stable, widely-available system libraries (glibc, basic system libs)</li>
+                    <li>Installing to a self-contained directory structure (typically /opt)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Why Not System Packages Section -->
+    <div class="section" style="background: white;">
+        <div class="container">
+            <h2 class="section-title">When to Use Package Collections</h2>
+
+            <div class="two-column">
+                <div class="column-box" style="border-left: 3px solid var(--warning);">
+                    <h3>System Packages</h3>
+                    <span class="badge badge-info">Best for infrastructure</span>
+                    <p>Standard RPM packages installed to /usr are ideal when:</p>
+                    <ul>
+                        <li>Building for a specific distribution version</li>
+                        <li>Integration with system package manager is desired</li>
+                        <li>Dependencies are available in distribution repos</li>
+                        <li>You control the target environment</li>
+                    </ul>
+                    <p style="margin-top: 1rem;"><strong>Limitation:</strong> Different distributions may have incompatible library versions, making cross-distribution deployment difficult.</p>
+                </div>
+
+                <div class="column-box" style="border-left: 3px solid var(--success);">
+                    <h3>Package Collections</h3>
+                    <span class="badge badge-success">Best for applications</span>
+                    <p>Self-contained collections in /opt are ideal when:</p>
+                    <ul>
+                        <li>Application needs to run on multiple distributions</li>
+                        <li>You need specific library versions regardless of system</li>
+                        <li>Application and dependencies should be isolated</li>
+                        <li>Users may not have package manager access</li>
+                    </ul>
+                    <p style="margin-top: 1rem;"><strong>Benefit:</strong> Works across any distribution with compatible glibc, giving you maximum portability.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Example Section -->
+    <div class="section">
+        <div class="container">
+            <h2 class="section-title">Example: Building a Portable Python Application</h2>
+            <p class="section-subtitle">Let's build a Python application that needs Python 3.12 and several libraries, deployable across Fedora, RHEL, Ubuntu, and Debian.</p>
+
+            <div class="example-box">
+                <h3>Scenario</h3>
+                <p>Your application requires:</p>
+                <ul style="margin-left: 1.5rem; color: var(--text);">
+                    <li>Python 3.12 (may not be available on older distributions)</li>
+                    <li>NumPy, Pandas, and other scientific libraries</li>
+                    <li>Custom application code</li>
+                </ul>
+                <p style="margin-top: 1rem;">Target distributions: Fedora 39+, RHEL 9, Ubuntu 22.04+, Debian 12+</p>
+            </div>
+
+            <div class="highlight-box success">
+                <h3>Package Collection Configuration</h3>
+                <p>Using rpm-build-assist with the package-collection type:</p>
+
+<pre><code># build-assist.yaml
+base: fedora-43-x86_64
+
+build:
+  - type: dist-git
+    url: https://src.fedoraproject.org/rpms/
+    packages:
+      - python3.12:release-3.12
+      - python3.12-pip:release-24.0
+      - python3.12-numpy:release-1.26
+      - python3.12-pandas:release-2.1
+
+  - type: git
+    url: https://github.com/myorg/myapp.git
+    packages:
+      - myapp:main
+
+install:
+  type: package-collection
+  collection: myapp
+  prefix: /opt/myapp
+  packages:
+    - python3.12
+    - python3.12-pip
+    - python3.12-numpy
+    - python3.12-pandas
+    - myapp</code></pre>
+            </div>
+
+            <div class="highlight-box info">
+                <h3>What This Produces</h3>
+                <p>The package-collection build creates a self-contained directory structure:</p>
+
+<pre><code>/opt/myapp/
+├── bin/
+│   ├── python3.12          # Python interpreter
+│   ├── pip3.12             # Package installer
+│   └── myapp               # Your application
+├── lib/
+│   ├── libpython3.12.so    # Python runtime library
+│   └── python3.12/         # Python standard library
+│       └── site-packages/  # Installed packages
+│           ├── numpy/
+│           ├── pandas/
+│           └── myapp/
+└── share/
+    └── myapp/              # Application data</code></pre>
+
+                <p style="margin-top: 1rem;"><strong>Key feature:</strong> All executables in /opt/myapp/bin have rpath set to find libraries in /opt/myapp/lib automatically.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- How It Works Section -->
+    <div class="section" style="background: white;">
+        <div class="container">
+            <h2 class="section-title">How Package Collections Work</h2>
+
+            <div class="highlight-box info">
+                <h3>The Role of rpath</h3>
+                <p>rpath (runtime path) is an ELF binary attribute that tells the dynamic linker where to find shared libraries. When building a package collection, rpm-build-assist automatically:</p>
+                <ul>
+                    <li>Sets rpath on all executables to point to the collection's lib directory</li>
+                    <li>Ensures libraries can find other libraries within the collection</li>
+                    <li>Allows the collection to be self-contained and relocatable</li>
+                </ul>
+
+                <p style="margin-top: 1rem;">Example rpath in /opt/myapp/bin/python3.12:</p>
+<pre><code>$ readelf -d /opt/myapp/bin/python3.12 | grep RPATH
+ 0x000000000000000f (RPATH)    Library rpath: [/opt/myapp/lib]</code></pre>
+            </div>
+
+            <div class="highlight-box success">
+                <h3>Dependency Resolution</h3>
+                <p>The package collection includes:</p>
+                <ul>
+                    <li><strong>Bundled dependencies:</strong> Libraries that vary between distributions (Python, NumPy, custom libs)</li>
+                    <li><strong>System dependencies:</strong> Stable libraries present on all target systems (glibc, libm, libpthread)</li>
+                </ul>
+
+                <p style="margin-top: 1rem;">The RPM spec files control this split:</p>
+<pre><code># In python3.12.spec
+BuildRequires: gcc, make, openssl-devel
+Requires: glibc >= 2.34
+# Does NOT require specific system Python
+
+# Collection build includes python3.12 and its libs
+# Runtime only requires compatible glibc (available everywhere)</code></pre>
+            </div>
+
+            <div class="highlight-box info">
+                <h3>Distribution and Installation</h3>
+                <p>The resulting package collection can be distributed as:</p>
+                <ul>
+                    <li><strong>Tarball:</strong> Simple tar.gz of /opt/myapp for manual extraction</li>
+                    <li><strong>RPM:</strong> An RPM that installs the collection (works on RPM-based distros)</li>
+                    <li><strong>DEB:</strong> Convert to .deb using alien or build scripts (for Debian/Ubuntu)</li>
+                    <li><strong>Container base:</strong> Use as the base for container images</li>
+                </ul>
+
+                <p style="margin-top: 1rem;">Users can run your application simply:</p>
+<pre><code># After extracting to /opt/myapp
+$ /opt/myapp/bin/myapp
+
+# Or add to PATH
+$ export PATH="/opt/myapp/bin:$PATH"
+$ myapp</code></pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- Multi-Component Example -->
+    <div class="section">
+        <div class="container">
+            <h2 class="section-title">Building Complex Applications</h2>
+            <p class="section-subtitle">Package collections excel when you need to bundle multiple interdependent components.</p>
+
+            <div class="example-box">
+                <h3>Example: Web Application with Custom Runtime</h3>
+                <p>Build a complete web application stack with specific versions:</p>
+            </div>
+
+            <div class="highlight-box">
+<pre><code># build-assist.yaml
+base: fedora-43-x86_64
+
+build:
+  - type: dist-git
+    url: https://src.fedoraproject.org/rpms/
+    packages:
+      - nodejs:release-20
+      - postgresql:release-16
+      - nginx:release-1.25
+
+  - type: git
+    url: https://github.com/myorg/
+    packages:
+      - myapp-frontend:main
+      - myapp-backend:main
+      - myapp-database:main
+
+install:
+  type: package-collection
+  collection: myapp-stack
+  prefix: /opt/myapp-stack
+  packages:
+    - nodejs
+    - postgresql
+    - nginx
+    - myapp-frontend
+    - myapp-backend
+    - myapp-database</code></pre>
+
+                <p style="margin-top: 1rem;">This creates a complete, portable application stack at /opt/myapp-stack with:</p>
+                <ul>
+                    <li>Specific versions of Node.js, PostgreSQL, and nginx</li>
+                    <li>Your application components</li>
+                    <li>All dependencies properly linked via rpath</li>
+                    <li>Configuration files in /opt/myapp-stack/etc</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Benefits Section -->
+    <div class="section" style="background: white;">
+        <div class="container">
+            <h2 class="section-title">Benefits of the Package Collection Approach</h2>
+
+            <ul class="benefit-list">
+                <li>
+                    <strong>True portability</strong>
+                    Works across different Linux distributions with compatible glibc, eliminating "it works on my distro" issues.
+                </li>
+                <li>
+                    <strong>Version control</strong>
+                    Bundle exactly the library versions you need, regardless of what's available in system repos.
+                </li>
+                <li>
+                    <strong>Isolation</strong>
+                    Application runs in its own /opt directory without conflicting with system packages or other applications.
+                </li>
+                <li>
+                    <strong>Dependency management</strong>
+                    RPM specs handle complex dependency graphs automatically, just like system packages.
+                </li>
+                <li>
+                    <strong>Reproducible builds</strong>
+                    Same build-assist.yaml produces identical results, ensuring consistency across deployments.
+                </li>
+                <li>
+                    <strong>Reusable components</strong>
+                    Build the collection once, deploy everywhere. Each component is an independent, reusable package.
+                </li>
+                <li>
+                    <strong>No root required</strong>
+                    Users can extract and run the collection without package manager or root access.
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Comparison Section -->
+    <div class="section">
+        <div class="container">
+            <h2 class="section-title">Comparison with Other Approaches</h2>
+
+            <div class="two-column">
+                <div class="column-box">
+                    <h3>Static Linking</h3>
+                    <p><strong>Approach:</strong> Compile all dependencies into the executable.</p>
+                    <p><strong>Advantages:</strong></p>
+                    <ul>
+                        <li>Single binary distribution</li>
+                        <li>No runtime dependencies</li>
+                    </ul>
+                    <p><strong>Disadvantages:</strong></p>
+                    <ul>
+                        <li>Very large binaries</li>
+                        <li>Can't update libraries independently</li>
+                        <li>License complications (GPL, etc.)</li>
+                        <li>Doesn't work for interpreted languages</li>
+                    </ul>
+                </div>
+
+                <div class="column-box">
+                    <h3>AppImage / Flatpak / Snap</h3>
+                    <p><strong>Approach:</strong> Distribution-specific packaging formats.</p>
+                    <p><strong>Advantages:</strong></p>
+                    <ul>
+                        <li>Desktop integration</li>
+                        <li>Sandboxing features</li>
+                        <li>Built-in update mechanisms</li>
+                    </ul>
+                    <p><strong>Disadvantages:</strong></p>
+                    <ul>
+                        <li>Focused on desktop apps, not servers</li>
+                        <li>Additional runtime requirements</li>
+                        <li>May require specific kernel features</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="two-column" style="margin-top: 2rem;">
+                <div class="column-box">
+                    <h3>Containers (Docker, Podman)</h3>
+                    <p><strong>Approach:</strong> Bundle application with entire userspace.</p>
+                    <p><strong>Advantages:</strong></p>
+                    <ul>
+                        <li>Complete isolation</li>
+                        <li>Includes entire OS environment</li>
+                        <li>Industry standard for deployment</li>
+                    </ul>
+                    <p><strong>Disadvantages:</strong></p>
+                    <ul>
+                        <li>Requires container runtime</li>
+                        <li>Larger distribution size</li>
+                        <li>Additional complexity</li>
+                        <li>May require root/privileges</li>
+                    </ul>
+                </div>
+
+                <div class="column-box" style="border-left: 3px solid var(--success);">
+                    <h3>Package Collections (RPM)</h3>
+                    <p><strong>Approach:</strong> Bundle variable dependencies with rpath.</p>
+                    <p><strong>Advantages:</strong></p>
+                    <ul>
+                        <li>Native binaries, no runtime needed</li>
+                        <li>Smaller than containers</li>
+                        <li>Works as regular processes</li>
+                        <li>No special privileges required</li>
+                        <li>Reusable package components</li>
+                    </ul>
+                    <p><strong>Disadvantages:</strong></p>
+                    <ul>
+                        <li>Requires compatible glibc</li>
+                        <li>Less isolation than containers</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Best Practices Section -->
+    <div class="section" style="background: white;">
+        <div class="container">
+            <h2 class="section-title">Best Practices</h2>
+
+            <div class="highlight-box info">
+                <h3>What to Bundle</h3>
+                <p>Include in your package collection:</p>
+                <ul>
+                    <li>Language runtimes (Python, Node.js, Ruby) if you need specific versions</li>
+                    <li>Application-specific libraries not available in all target distributions</li>
+                    <li>Libraries that frequently have incompatible versions across distros</li>
+                    <li>Your application code and its direct dependencies</li>
+                </ul>
+            </div>
+
+            <div class="highlight-box warning">
+                <h3>What NOT to Bundle</h3>
+                <p>Rely on system packages for:</p>
+                <ul>
+                    <li>glibc and core system libraries (present everywhere)</li>
+                    <li>Common libraries with stable ABIs (zlib, OpenSSL if using system crypto)</li>
+                    <li>Kernel interfaces and system services</li>
+                    <li>Libraries that require system integration (PAM, systemd)</li>
+                </ul>
+                <p style="margin-top: 1rem;"><strong>Why:</strong> Bundling too much increases size and can cause compatibility issues with system-level features.</p>
+            </div>
+
+            <div class="highlight-box success">
+                <h3>Testing for Portability</h3>
+                <p>Before distributing your package collection:</p>
+                <ul>
+                    <li>Test on minimum supported distribution versions (e.g., oldest Ubuntu LTS)</li>
+                    <li>Verify with <code>ldd</code> that bundled executables find their libraries</li>
+                    <li>Check for unintended system dependencies with <code>rpm -qpR</code></li>
+                    <li>Test extraction and running as non-root user</li>
+                    <li>Verify it works without modifications to system PATH or LD_LIBRARY_PATH</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>registry-build - One Spec, Many Deployments | <a href="index.html" class="footer-link">Back to Main Page</a></p>
+        </div>
+    </footer>
+</body>
+</html>
