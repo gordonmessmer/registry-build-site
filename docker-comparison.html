@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docker vs RPM: Comparing Build Approaches - registry-build</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --secondary: #0ea5e9;
+            --accent: #06b6d4;
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text);
+            background: var(--bg);
+        }
+
+        .hero {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 4rem 2rem;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            opacity: 0.9;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .nav-link {
+            display: inline-block;
+            color: white;
+            text-decoration: none;
+            margin-top: 1.5rem;
+            padding: 0.75rem 1.5rem;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .section {
+            padding: 4rem 0;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-align: center;
+            color: var(--text);
+        }
+
+        .section-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-light);
+            text-align: center;
+            max-width: 900px;
+            margin: 0 auto 3rem;
+            line-height: 1.8;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .comparison-card {
+            background: var(--surface);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+            overflow: hidden;
+        }
+
+        .comparison-header {
+            padding: 1.5rem;
+            font-weight: 700;
+            font-size: 1.5rem;
+            text-align: center;
+        }
+
+        .docker-header {
+            background: linear-gradient(135deg, #2496ed, #0db7ed);
+            color: white;
+        }
+
+        .rpm-header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .comparison-content {
+            padding: 2rem;
+        }
+
+        .stats-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 600;
+            margin: 0.5rem 0;
+            font-size: 0.95rem;
+        }
+
+        .stat-lines {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .stat-complexity {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .stat-good {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        pre {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            margin: 1rem 0;
+        }
+
+        code {
+            font-family: 'Monaco', 'Courier New', monospace;
+        }
+
+        .highlight-box {
+            background: var(--surface);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+            margin: 2rem 0;
+        }
+
+        .highlight-box.warning {
+            border-left: 4px solid var(--warning);
+        }
+
+        .highlight-box.success {
+            border-left: 4px solid var(--success);
+        }
+
+        .highlight-box h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+
+        .highlight-box p {
+            color: var(--text-light);
+            font-size: 1.125rem;
+            line-height: 1.8;
+            margin-bottom: 0.75rem;
+        }
+
+        .highlight-box ul {
+            margin-left: 1.5rem;
+            color: var(--text-light);
+            font-size: 1.125rem;
+            line-height: 1.8;
+        }
+
+        .highlight-box li {
+            margin-bottom: 0.5rem;
+        }
+
+        .benefit-list {
+            list-style: none;
+            margin: 1.5rem 0;
+            padding: 0;
+        }
+
+        .benefit-list li {
+            padding: 1rem;
+            background: var(--bg);
+            margin-bottom: 0.75rem;
+            border-radius: 6px;
+            border-left: 3px solid var(--success);
+        }
+
+        .benefit-list li strong {
+            color: var(--text);
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .drawback-list {
+            list-style: none;
+            margin: 1.5rem 0;
+            padding: 0;
+        }
+
+        .drawback-list li {
+            padding: 1rem;
+            background: var(--bg);
+            margin-bottom: 0.75rem;
+            border-radius: 6px;
+            border-left: 3px solid var(--danger);
+        }
+
+        .drawback-list li strong {
+            color: var(--text);
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .scenario-box {
+            background: #f0f9ff;
+            border: 2px solid #0ea5e9;
+            padding: 2rem;
+            border-radius: 12px;
+            margin: 2rem 0;
+        }
+
+        .scenario-box h3 {
+            color: var(--primary);
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .scenario-box p {
+            color: var(--text);
+            margin-bottom: 0.75rem;
+            line-height: 1.7;
+        }
+
+        footer {
+            background: var(--text);
+            color: rgba(255, 255, 255, 0.8);
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .footer-link {
+            color: var(--secondary);
+            text-decoration: none;
+        }
+
+        .footer-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 1024px) {
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .container {
+                padding: 0 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <div class="hero">
+        <div class="container">
+            <h1>Building Containers with RPM: A Declarative Approach</h1>
+            <p>Comparing procedural Docker build scripts with declarative RPM package definitions to show how proper separation of concerns leads to more maintainable, reusable container builds.</p>
+            <a href="index.html" class="nav-link">← Back to Main Page</a>
+        </div>
+    </div>
+
+    <!-- Introduction Section -->
+    <div class="section">
+        <div class="container">
+            <h2 class="section-title">Two Approaches to Container Builds</h2>
+            <p class="section-subtitle">When compiling software from source in containers, you can choose between procedural build scripts or declarative package definitions. Let's compare both approaches using a container that needs OpenSSL and Apache httpd.</p>
+        </div>
+    </div>
+
+    <!-- Main Comparison Section -->
+    <div class="section" style="background: white;">
+        <div class="container">
+            <h2 class="section-title">Building OpenSSL + Apache httpd</h2>
+
+            <div class="comparison-grid">
+                <!-- Traditional Docker Approach -->
+                <div class="comparison-card">
+                    <div class="comparison-header docker-header">
+                        Traditional Dockerfile
+                    </div>
+                    <div class="comparison-content">
+                        <div class="stats-badge stat-lines">~120 lines of code</div>
+                        <div class="stats-badge stat-complexity">High complexity</div>
+
+<pre><code># Multi-stage Dockerfile for OpenSSL + Apache httpd
+FROM registry.fedoraproject.org/fedora:43 AS builder
+
+# Install build dependencies
+RUN dnf install -y \
+    gcc \
+    make \
+    perl \
+    perl-IPC-Cmd \
+    wget \
+    tar \
+    zlib-devel \
+    pcre-devel \
+    apr-devel \
+    apr-util-devel \
+    expat-devel \
+    && dnf clean all
+
+# Build OpenSSL
+WORKDIR /usr/src
+RUN wget https://www.openssl.org/source/openssl-3.4.0.tar.gz \
+    && tar xzf openssl-3.4.0.tar.gz \
+    && cd openssl-3.4.0 \
+    && ./config \
+       --prefix=/opt/openssl \
+       --openssldir=/opt/openssl/ssl \
+       shared \
+       zlib \
+    && make -j$(nproc) \
+    && make install
+
+# Build Apache httpd
+WORKDIR /usr/src
+RUN wget https://dlcdn.apache.org/httpd/httpd-2.4.62.tar.gz \
+    && tar xzf httpd-2.4.62.tar.gz \
+    && cd httpd-2.4.62 \
+    && ./configure \
+       --prefix=/opt/httpd \
+       --enable-ssl \
+       --with-ssl=/opt/openssl \
+       --enable-so \
+       --enable-deflate \
+       --enable-http2 \
+       --with-mpm=event \
+    && make -j$(nproc) \
+    && make install
+
+# Production stage - minimal image
+FROM registry.fedoraproject.org/fedora:43
+
+# Install runtime dependencies only
+RUN dnf install -y \
+    zlib \
+    pcre \
+    apr \
+    apr-util \
+    expat \
+    && dnf clean all
+
+# Copy built software from builder
+COPY --from=builder /opt/openssl /opt/openssl
+COPY --from=builder /opt/httpd /opt/httpd
+
+# Set up environment
+ENV PATH="/opt/httpd/bin:${PATH}"
+ENV LD_LIBRARY_PATH="/opt/openssl/lib64:/opt/httpd/lib"
+
+# Configure httpd
+RUN sed -i \
+    -e 's/^#ServerName.*/ServerName localhost/' \
+    -e 's/^Listen 80/Listen 8080/' \
+    /opt/httpd/conf/httpd.conf
+
+EXPOSE 8080
+
+CMD ["/opt/httpd/bin/httpd", "-D", "FOREGROUND"]</code></pre>
+
+                        <ul class="drawback-list">
+                            <li>
+                                <strong>Hard-coded versions</strong>
+                                Manually tracking upstream releases for OpenSSL and httpd
+                            </li>
+                            <li>
+                                <strong>Complex dependency management</strong>
+                                Must manually identify and install all build and runtime dependencies
+                            </li>
+                            <li>
+                                <strong>No reusability</strong>
+                                Each component build is custom scripted
+                            </li>
+                            <li>
+                                <strong>Difficult to extend</strong>
+                                Adding a third component (e.g., PHP) requires significant additional complexity
+                            </li>
+                            <li>
+                                <strong>No package metadata</strong>
+                                No dependency tracking, version info, or upgrade paths
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- RPM Build Assist Approach -->
+                <div class="comparison-card">
+                    <div class="comparison-header rpm-header">
+                        RPM build-assist.yaml
+                    </div>
+                    <div class="comparison-content">
+                        <div class="stats-badge stat-good">~15 lines of config</div>
+                        <div class="stats-badge stat-good">Low complexity</div>
+
+<pre><code># build-assist.yaml
+base: fedora-43-x86_64
+
+build:
+  - type: dist-git
+    url: https://src.fedoraproject.org/rpms/
+    packages:
+      - openssl:f43
+      - httpd:f43
+
+install:
+  type: container
+  packages:
+    - openssl
+    - httpd</code></pre>
+
+                        <ul class="benefit-list">
+                            <li>
+                                <strong>Automatic version tracking</strong>
+                                Dist-git repos track latest stable releases automatically
+                            </li>
+                            <li>
+                                <strong>Dependency resolution built-in</strong>
+                                RPM spec files define all build and runtime dependencies
+                            </li>
+                            <li>
+                                <strong>Highly reusable</strong>
+                                Each package is independently maintained with proper boundaries
+                            </li>
+                            <li>
+                                <strong>Easy to extend</strong>
+                                Adding PHP is just one more line in the packages list
+                            </li>
+                            <li>
+                                <strong>Full package metadata</strong>
+                                Version tracking, dependency chains, upgrade paths all handled
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Real World Scenario -->
+    <div class="section">
+        <div class="container">
+            <h2 class="section-title">Real-World Scenario: Adding a Third Component</h2>
+
+            <div class="scenario-box">
+                <h3>Requirement: Add PHP Support</h3>
+                <p>Your application now needs PHP in addition to OpenSSL and Apache httpd. Let's compare how much work this requires in each approach.</p>
+            </div>
+
+            <div class="comparison-grid">
+                <div class="comparison-card">
+                    <div class="comparison-header docker-header">
+                        Traditional Docker
+                    </div>
+                    <div class="comparison-content">
+                        <div class="stats-badge stat-complexity">+40-60 lines of code</div>
+<pre><code># Add to builder stage
+RUN dnf install -y \
+    libxml2-devel \
+    sqlite-devel \
+    libcurl-devel \
+    oniguruma-devel \
+    # ... many more dependencies
+
+# Build PHP
+WORKDIR /usr/src
+RUN wget https://www.php.net/distributions/php-8.3.14.tar.gz \
+    && tar xzf php-8.3.14.tar.gz \
+    && cd php-8.3.14 \
+    && ./configure \
+       --prefix=/opt/php \
+       --with-openssl=/opt/openssl \
+       --with-apxs2=/opt/httpd/bin/apxs \
+       --enable-mbstring \
+       --with-curl \
+       --with-pdo-mysql \
+       # ... many more configure flags \
+    && make -j$(nproc) \
+    && make install
+
+# Add to production stage
+RUN dnf install -y \
+    libxml2 \
+    sqlite-libs \
+    libcurl \
+    oniguruma \
+    # ... corresponding runtime deps
+
+COPY --from=builder /opt/php /opt/php
+
+# Update environment variables
+ENV PATH="/opt/php/bin:${PATH}"
+ENV LD_LIBRARY_PATH="/opt/php/lib:${LD_LIBRARY_PATH}"
+
+# Configure Apache to load PHP module
+RUN echo "LoadModule php_module modules/libphp.so" \
+    >> /opt/httpd/conf/httpd.conf</code></pre>
+                        <p style="color: var(--text-light); margin-top: 1rem;">
+                            Each component requires researching dependencies, download locations, configure flags, and integration steps. The Dockerfile grows linearly with complexity.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="comparison-card">
+                    <div class="comparison-header rpm-header">
+                        RPM build-assist
+                    </div>
+                    <div class="comparison-content">
+                        <div class="stats-badge stat-good">+1 line of config</div>
+<pre><code># build-assist.yaml
+base: fedora-43-x86_64
+
+build:
+  - type: dist-git
+    url: https://src.fedoraproject.org/rpms/
+    packages:
+      - openssl:f43
+      - httpd:f43
+      - php:f43          # ← Only change needed
+
+install:
+  type: container
+  packages:
+    - openssl
+    - httpd
+    - php</code></pre>
+                        <p style="color: var(--text-light); margin-top: 1rem;">
+                            The RPM spec for PHP already defines all dependencies, build flags, and Apache integration. Just add it to the list. The configuration stays simple regardless of how many components you add.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Key Differences Section -->
+    <div class="section" style="background: white;">
+        <div class="container">
+            <h2 class="section-title">Key Differences</h2>
+
+            <div class="highlight-box warning">
+                <h3>Traditional Docker: Procedural Build Scripts</h3>
+                <ul>
+                    <li>Every build step must be explicitly scripted</li>
+                    <li>Dependencies must be manually researched and listed</li>
+                    <li>Version updates require manual tracking</li>
+                    <li>No separation between build and runtime dependencies (must manually track)</li>
+                    <li>Adding components means adding more scripting</li>
+                    <li>Complexity grows linearly with the number of components</li>
+                    <li>No metadata about what's installed or how components relate</li>
+                </ul>
+            </div>
+
+            <div class="highlight-box success">
+                <h3>RPM Build Assist: Declarative Package Definitions</h3>
+                <ul>
+                    <li>Build steps are defined once in the RPM spec file</li>
+                    <li>Dependencies are declared in spec files and automatically resolved</li>
+                    <li>Version tracking can be automated via dist-git monitoring</li>
+                    <li>Clear separation of BuildRequires and Requires</li>
+                    <li>Adding components means adding package names</li>
+                    <li>Complexity stays constant regardless of component count</li>
+                    <li>Full metadata: versions, dependencies, file ownership, changelog</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Maintainability Section -->
+    <div class="section">
+        <div class="container">
+            <h2 class="section-title">Long-Term Maintainability</h2>
+            <p class="section-subtitle">The difference becomes even more pronounced over time.</p>
+
+            <div class="highlight-box">
+                <h3>Updating to New Versions</h3>
+                <p><strong>Traditional Docker:</strong> When OpenSSL 3.5.0 or httpd 2.4.63 is released:</p>
+                <ul>
+                    <li>Manually update version numbers in wget URLs</li>
+                    <li>Check if new dependencies are needed</li>
+                    <li>Test if existing configure flags are still valid</li>
+                    <li>Update runtime dependency list if needed</li>
+                    <li>Repeat for every component</li>
+                </ul>
+
+                <p style="margin-top: 1.5rem;"><strong>RPM Build Assist:</strong> When packages are updated in dist-git:</p>
+                <ul>
+                    <li>Automated tools (dist-git-manager) can detect new releases</li>
+                    <li>RPM spec is updated once, tested once</li>
+                    <li>Dependencies are automatically updated if spec changes</li>
+                    <li>Rebuild with same build-assist.yaml configuration</li>
+                    <li>All components benefit from the same update mechanism</li>
+                </ul>
+            </div>
+
+            <div class="highlight-box">
+                <h3>Team Collaboration</h3>
+                <p><strong>Traditional Docker:</strong></p>
+                <ul>
+                    <li>Each team member needs to understand the build process for all components</li>
+                    <li>Dockerfile becomes tribal knowledge</li>
+                    <li>Hard to split ownership of different components</li>
+                </ul>
+
+                <p style="margin-top: 1.5rem;"><strong>RPM Build Assist:</strong></p>
+                <ul>
+                    <li>Each component can be owned by different team members</li>
+                    <li>Package maintainers only need to know their component</li>
+                    <li>Integration is automatic via dependency resolution</li>
+                    <li>Clear boundaries and ownership</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- How It Works Section -->
+    <div class="section" style="background: white;">
+        <div class="container">
+            <h2 class="section-title">How RPM Build Assist Works</h2>
+
+            <div class="highlight-box">
+                <h3>Behind the Scenes</h3>
+                <p>When you run <code>rpm-build-assist</code> with the build-assist.yaml configuration:</p>
+
+                <ol style="margin-left: 2rem; color: var(--text-light); font-size: 1.125rem; line-height: 1.8;">
+                    <li style="margin-bottom: 1rem;">
+                        <strong style="color: var(--text);">Fetch specs:</strong> Clones the dist-git repos for openssl and httpd
+                    </li>
+                    <li style="margin-bottom: 1rem;">
+                        <strong style="color: var(--text);">Resolve dependencies:</strong> Reads BuildRequires from each spec, creates a complete dependency graph
+                    </li>
+                    <li style="margin-bottom: 1rem;">
+                        <strong style="color: var(--text);">Build packages:</strong> Builds RPMs in dependency order in isolated environments
+                    </li>
+                    <li style="margin-bottom: 1rem;">
+                        <strong style="color: var(--text);">Create container:</strong> Installs only the runtime packages (not build dependencies) into a container image
+                    </li>
+                    <li style="margin-bottom: 1rem;">
+                        <strong style="color: var(--text);">Layer optimization:</strong> Properly separates base layer, dependencies, and application layers for efficient caching
+                    </li>
+                </ol>
+            </div>
+
+            <div class="highlight-box success">
+                <h3>The Multi-Stage Build is Built-In</h3>
+                <p>The traditional Dockerfile manually implements a multi-stage build to separate build and runtime dependencies. With RPM build assist, this is automatic:</p>
+                <ul>
+                    <li><strong>BuildRequires</strong> defines what's needed to compile (gcc, make, devel packages)</li>
+                    <li><strong>Requires</strong> defines what's needed to run (shared libraries, runtime configs)</li>
+                    <li>The container install type automatically uses only Requires, not BuildRequires</li>
+                    <li>Result: minimal runtime image with no build tools or headers</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Conclusion Section -->
+    <div class="section">
+        <div class="container">
+            <h2 class="section-title">Conclusion</h2>
+
+            <div class="highlight-box">
+                <h3>When Traditional Docker Makes Sense</h3>
+                <ul>
+                    <li>Simple, single-purpose containers with no compilation</li>
+                    <li>Deploying pre-built binaries</li>
+                    <li>Quick prototypes and one-off solutions</li>
+                    <li>When you don't need version tracking or updates</li>
+                </ul>
+            </div>
+
+            <div class="highlight-box success">
+                <h3>When RPM Build Assist Shines</h3>
+                <ul>
+                    <li>Building software from source</li>
+                    <li>Multiple components with complex dependencies</li>
+                    <li>Need for version tracking and automated updates</li>
+                    <li>Long-term maintenance and team collaboration</li>
+                    <li>Reusing components across multiple containers</li>
+                    <li>When you want separation of concerns (each package = one responsibility)</li>
+                </ul>
+            </div>
+
+            <p class="section-subtitle" style="margin-top: 3rem;">
+                The traditional Docker approach isn't just longer—it's fundamentally less maintainable and reusable. RPM-based builds provide the structure and tooling needed for sustainable, production-grade container images.
+            </p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>registry-build - One Spec, Many Deployments | <a href="index.html" class="footer-link">Back to Main Page</a></p>
+        </div>
+    </footer>
+</body>
+</html>
