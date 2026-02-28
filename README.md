@@ -40,5 +40,12 @@ python3 -m http.server 8000
 
 ## Development
 
-The website is self-contained in `index.html` with inline CSS and JavaScript.
+The website consists of multiple HTML pages that share a common stylesheet (`styles.css`).
 No build process or dependencies required.
+
+### Files
+
+- `index.html` - Main landing page
+- `docker-comparison.html` - Comparison of Docker vs RPM build approaches
+- `portable-applications.html` - Guide to building portable applications with package collections
+- `styles.css` - Shared stylesheet for all pages
